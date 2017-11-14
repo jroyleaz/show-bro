@@ -1,0 +1,22 @@
+.Search-Results-thumbnail {
+  width: 210px;
+  height: 295px;
+}
+
+.Search-Results-show-box {
+  min-height: 355px!important;
+  height: 355px!important;
+}
+
+.Search-Results-result-box {
+  display: -webkit-flex;
+  -webkit-flex-wrap: wrap;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.card-small {
+  width: 210px;
+  padding: 10px;
+  border: 1px solid darkgray;
+}
