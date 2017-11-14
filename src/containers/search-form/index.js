@@ -5,8 +5,6 @@ import { connect } from 'react-redux'
 import { DebounceInput } from 'react-debounce-input'
 import { search } from '../../modules/search'
 
-let input;
-
 const SearchForm = props => (
   <div>
     <div className="input-field left-align">
@@ -15,7 +13,7 @@ const SearchForm = props => (
         debounceTimeout={800}
         onChange={e => {
           props.search(e.target.value)
-          props.changePage(e.target.value)
+          props.changePage(e.target.value, props.sortedBy)
         }}
         id="show_search"
         type="text"
@@ -31,11 +29,12 @@ const SearchForm = props => (
 const mapStateToProps = state => ({
   searchQuery: state.search.searchQuery,
   isSearching: state.search.isSearching,
+  sortedBy: state.search.sortedBy,
 })
 
 const mapDispatchToProps = dispatch => bindActionCreators({
   search,
-  changePage: (query) => push(`/search/${query}`)
+  changePage: (query, sorter) => push(`/search/${query}/sort/${sorter}`)
 }, dispatch)
 
 export default connect(

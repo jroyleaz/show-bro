@@ -4,6 +4,7 @@ import { connect } from 'react-redux'
 import ProgressiveImage from 'react-progressive-image'
 import { search } from '../../modules/search'
 import NoResults from '../no-results'
+import SearchControls from '../search-controls'
 import './search-results.css'
 
 const SearchResults = props => {
@@ -20,7 +21,8 @@ const SearchResults = props => {
       {(props.searchResults &&
         props.searchResults[props.searchQuery] &&
         props.searchResults[props.searchQuery].length > 0) &&
-        <div className="Search-Results-result-box row">
+        <div className="Search-Results-result-box row center-align responsive">
+          <SearchControls />
           {props.searchResults[props.searchQuery].map((data) => (
             <div key={data.id} >
                 <div className="card card-small Search-Results-show-box">

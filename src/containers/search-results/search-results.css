@@ -20,3 +20,11 @@
   padding: 10px;
   border: 1px solid darkgray;
 }
+
+.Search-Controls-menu-item {
+  text-transform: capitalize;
+}
+
+.disabled {
+  pointer-events: none;
+}

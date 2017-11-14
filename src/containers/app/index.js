@@ -12,7 +12,7 @@ const App = () => (
 
     <main>
       <Route path="/search" component={SearchForm} />
-      <Route exact path="/search/:query" component={SearchResults} />
+      <Route path="/search/:query" component={SearchResults} />
     </main>
   </div>
 )

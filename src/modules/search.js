@@ -1,9 +1,12 @@
 import Promise from 'bluebird'
+import _ from 'lodash'
 
 export const SEARCH_REQUESTED = 'search/SEARCH_REQUESTED'
 export const SEARCH_COMPLETED = 'search/SEARCH_COMPLETED'
 export const SEARCH_EMPTY = 'search/SEARCH_EMPTY'
+export const SEARCH_SORTED = 'search/SEARCH_SORTED'
 export const CACHE_USED = 'search/CACHE_USED'
+export const UPDATE_SORTING = 'search/UPDATE_SORTING'
 export const MISSING_IMAGE = '/no_image.png';
 
 
@@ -12,6 +15,7 @@ const initialState = {
   searchQuery: '',
   isSearching: false,
   searchEmpty: false,
+  sortedBy: 'relevance',
 }
 
 export default (state = initialState, action) => {
@@ -38,6 +42,19 @@ export default (state = initialState, action) => {
         ...state,
         searchEmpty: true,
       }
+    case SEARCH_SORTED:
+      return {
+        ...state,
+        searchResults: {
+          ...state.searchResults,
+          [action.key]: action.payload
+        }
+      }
+    case UPDATE_SORTING:
+      return {
+        ...state,
+        sortedBy: action.payload,
+      }
     case CACHE_USED:
       return {
         ...state,
@@ -56,7 +73,6 @@ export const search = (query) => {
     })
 
     const state = getState();
-    console.log('getSTate', state);
 
     if (state.search.searchResults[state.search.searchQuery] &&
       state.search.searchResults[state.search.searchQuery].length > 0
@@ -77,8 +93,10 @@ export const search = (query) => {
             network: (d.show.network) ? d.show.network.name : 'Unknown',
             premiered: d.show.premiered,
             image: (d.show.image) ? d.show.image.medium : MISSING_IMAGE,
-            rating: (d.show.rating) ? d.show.rating : '',
+            rating: (d.show.rating) ? d.show.rating.average : '',
             airTime: `${d.show.schedule.days.join('s,')} at ${d.show.schedule.time}`,
+            updated: d.show.updated,
+            relevance: d.score,
             nextEpisode: {},
           };
           return showData;
@@ -98,6 +116,29 @@ export const search = (query) => {
           });
         })
       });
+    })
+  }
+}
+
+export const sortBy = (sortName, accessor) => {
+  return (dispatch, getState) => {
+    const state = getState()
+    const key = state.search.searchQuery
+    const results = state.search.searchResults[key]
+    const sorted = _.sortBy(results, (show) => {
+      return _.get(show, accessor);
+    })
+    
+    console.log('sorted', sorted);
+    dispatch({
+      type: UPDATE_SORTING,
+      payload: sortName,
+    })
+
+    return dispatch({
+      type: SEARCH_SORTED,
+      key,
+      payload: sorted,
     })
   }
 }
