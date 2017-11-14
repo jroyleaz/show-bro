@@ -37,8 +37,9 @@ const sorters = [
 ]
 
 const SearchControls = props => (
-  <nav>
-    <div className="nav-wrapper blue darken-2 Search-Controls-nav-bar responsive">
+    (props.searchResults &&
+    props.searchResults[props.searchQuery] &&
+    props.searchResults[props.searchQuery].length > 0) &&
       <ul id="nav-mobile" className="left hide-on-med-and-down">
         {sorters.map(sorter => {
           return (<li className={(sorter.title === props.sortedBy) ? "active disabled" : ""} key={sorter.title}>
@@ -52,8 +53,7 @@ const SearchControls = props => (
           </li>)
         })}
       </ul>
-    </div>
-  </nav>
+      || null
 )
 
 const mapStateToProps = state => ({

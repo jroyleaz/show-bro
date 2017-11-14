@@ -11,11 +11,14 @@ export const MISSING_IMAGE = '/no_image.png';
 
 
 const initialState = {
-  searchResults: [],
+  searchResults: {},
   searchQuery: '',
   isSearching: false,
   searchEmpty: false,
-  sortedBy: 'relevance',
+  searchSorting: {
+    sortBy: 'relevance',
+    sortDirection: 'desc',
+  }
 }
 
 export default (state = initialState, action) => {
@@ -53,7 +56,7 @@ export default (state = initialState, action) => {
     case UPDATE_SORTING:
       return {
         ...state,
-        sortedBy: action.payload,
+        searchSorting: action.payload,
       }
     case CACHE_USED:
       return {
@@ -72,7 +75,8 @@ export const search = (query) => {
       payload: query.trim(),
     })
 
-    const state = getState();
+    const state = getState()
+    const searchSorting = state.search.searchSorting
 
     if (state.search.searchResults[state.search.searchQuery] &&
       state.search.searchResults[state.search.searchQuery].length > 0
@@ -85,6 +89,10 @@ export const search = (query) => {
     return fetch(`http://api.tvmaze.com/search/shows?q=${query}`).then(response => {
       return response.json().then(data => {
         Promise.map(data, (d, i) => {
+          const airTime = (!_.isEmpty(d.show.schedule.days) && !_.isEmpty(d.show.schedule.time)) ?
+                          `${d.show.schedule.days.join('s, ')}s at ${d.show.schedule.time}` :
+                          'Unknown Schedule'
+          
           let showData = {
             id: d.show.id,
             name: (d.show.name) ? d.show.name : 'Unknown',
@@ -94,15 +102,15 @@ export const search = (query) => {
             premiered: d.show.premiered,
             image: (d.show.image) ? d.show.image.medium : MISSING_IMAGE,
             rating: (d.show.rating) ? d.show.rating.average : '',
-            airTime: `${d.show.schedule.days.join('s,')} at ${d.show.schedule.time}`,
+            airTime,
             updated: d.show.updated,
             relevance: d.score,
             nextEpisode: {},
           };
           return showData;
         }).then(results => {
-
-          if (results.length === 0) {
+          const sorted = _.orderBy(results, searchSorting.sortBy, searchSorting.sortDirection);
+          if (sorted.length === 0) {
             return dispatch({
               type: SEARCH_EMPTY,
             })
@@ -112,7 +120,7 @@ export const search = (query) => {
           return dispatch({
             type: SEARCH_COMPLETED,
             key: key,
-            payload: results,
+            payload: sorted,
           });
         })
       });
@@ -120,19 +128,23 @@ export const search = (query) => {
   }
 }
 
-export const sortBy = (sortName, accessor) => {
+export const sortBy = (sortBy, accessor) => {
   return (dispatch, getState) => {
     const state = getState()
     const key = state.search.searchQuery
     const results = state.search.searchResults[key]
-    const sorted = _.sortBy(results, (show) => {
-      return _.get(show, accessor);
-    })
-    
+    const sortDirection = (state.search.searchSorting.sortDirection === 'desc') ? 
+      'asc' : 
+      'desc'
+    const sorted = _.orderBy(results, sortBy, sortDirection);
+
     console.log('sorted', sorted);
     dispatch({
       type: UPDATE_SORTING,
-      payload: sortName,
+      payload: {
+       sortBy,
+       sortDirection, 
+      },
     })
 
     return dispatch({

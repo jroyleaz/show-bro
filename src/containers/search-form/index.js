@@ -6,24 +6,21 @@ import { DebounceInput } from 'react-debounce-input'
 import { search } from '../../modules/search'
 
 const SearchForm = props => (
-  <div>
-    <div className="input-field left-align">
-      <DebounceInput
-        minLength={2}
-        debounceTimeout={800}
-        onChange={e => {
-          props.search(e.target.value)
-          props.changePage(e.target.value, props.sortedBy)
-        }}
-        id="show_search"
-        type="text"
-        className="validate"
-        value={props.searchQuery}
-      />
-      <label htmlFor="show_search">Search for show...</label>
-    </div>
+  <div className="input-field">
+    <DebounceInput
+      minLength={2}
+      debounceTimeout={800}
+      onChange={e => {
+        props.search(e.target.value)
+        props.changePage(e.target.value, props.sortedBy)
+      }}
+      id="show_search"
+      type="text"
+      className="validate"
+      value={props.searchQuery}
+    />
+    <label htmlFor="show_search">Search for show...</label>
   </div>
-
 )
 
 const mapStateToProps = state => ({
